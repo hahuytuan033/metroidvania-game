@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpForce = 6f;
+    private int jumpCount;
+    private int jumpCountMax = 2; // số lần nhảy tối đa
     public LayerMask groundLayer;
     bool isGrounded;
     private Rigidbody2D rb;
@@ -24,7 +26,7 @@ public class Player : MonoBehaviour
 
 
         //jump the player
-        if (Input.GetKeyDown(KeyCode.K) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.K) && jumpCount < jumpCountMax)
         {
             jump();
         }
@@ -38,6 +40,7 @@ public class Player : MonoBehaviour
     void jump()
     {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        jumpCount++;
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -45,6 +48,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             isGrounded = true;
+            jumpCount = 0; // Reset số lần nhảy khi chạm đất
         }
     }
 
@@ -55,5 +59,4 @@ public class Player : MonoBehaviour
             isGrounded = false;
         }
     }
-
 }
