@@ -1,11 +1,14 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
     
     [SerializeField] private float speed = 5f;
+    [SerializeField] private float jumpForce = 6f;
+    private bool isGrounded= true;
     private Rigidbody2D rb;
-    private Vector2 movement;
+    float horizontalMovement;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -15,14 +18,21 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        // move the player
+        rb.linearVelocity = new Vector2(horizontalMovement * speed, rb.linearVelocity.y);
 
-        movement = new Vector2(moveHorizontal, moveVertical);
+        //jump the player
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            isGrounded = false;
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        }
+
+        
     }
 
-    void FixedUpdate()
+    public void Move(InputAction.CallbackContext context)
     {
-        rb.linearVelocity = movement * speed;
+        horizontalMovement= context.ReadValue<Vector2>().x;
     }
 }
