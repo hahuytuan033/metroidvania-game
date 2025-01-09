@@ -1,34 +1,35 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private float jumpForce = 6f;
-    private int jumpCount;
-    private int jumpCountMax = 2; // số lần nhảy tối đa
-    public LayerMask groundLayer;
-    bool isGrounded;
+    [SerializeField] private float speed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private LayerMask groundLayer;
     private Rigidbody2D rb;
-    float horizontalMovement;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    Animator anim;
+    private float horizontalMovement;
+    private bool isGrounded;
+    private int jumpCount;
+    private const int jumpCountMax = 2;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // move the player
+        AnimatorContrllers();
+
+        horizontalMovement = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(horizontalMovement * speed, rb.linearVelocity.y);
 
-
-        //jump the player
-        if (Input.GetKeyDown(KeyCode.K) && jumpCount < jumpCountMax)
+        if (Input.GetKeyDown(KeyCode.K) && (isGrounded || jumpCount < jumpCountMax))
         {
-            jump();
+            Jump();
         }
     }
 
@@ -37,10 +38,23 @@ public class Player : MonoBehaviour
         horizontalMovement = context.ReadValue<Vector2>().x;
     }
 
-    void jump()
+    void Jump()
     {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         jumpCount++;
+    }
+
+    void AnimatorContrllers()
+    {
+        bool isMoving= rb.linearVelocity.x !=0;
+        anim.SetBool("isMoving", isMoving);
+
+        anim.SetFloat("yVelocity", rb.linearVelocity.y);
+    }
+
+    void FixedUpdate()
+    {
+        // No animation updates needed
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -48,7 +62,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             isGrounded = true;
-            jumpCount = 0; // Reset số lần nhảy khi chạm đất
+            jumpCount = 0;
         }
     }
 
