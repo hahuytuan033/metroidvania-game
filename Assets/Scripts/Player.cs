@@ -23,7 +23,4 @@ public class Player : MonoBehaviour
     {
         horizontalMovement = context.ReadValue<float>();
     }
-    {
-
-    }
 }
